@@ -43,6 +43,7 @@ export function PageHero({
       <div className="inner-hero__glow" aria-hidden="true" />
       <div className="container inner-hero__grid">
         <div data-reveal>
+          <Breadcrumb items={[{ label: title }]} />
           <span className="section-kicker">{kicker}</span>
           <h1>{title}</h1>
           <p>{description}</p>
@@ -173,7 +174,7 @@ export function ArticleCard({ article, featured = false }: { article: ArticleRec
       <div className="article-card__body">
         <div className="article-card__meta">
           <span>{article.category}</span>
-          <span>{article.date}</span>
+          <time dateTime={article.publishedAt}>{article.date}</time>
           <span>{article.readTime}</span>
         </div>
         <h3>{article.title}</h3>

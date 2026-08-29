@@ -1,14 +1,13 @@
-import type { Metadata } from 'next';
-
 import { CTASection, PageHero } from '@/components/page-elements';
 import { ServiceListing } from '@/components/service-listing';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: 'خدمات کارشناسی',
   description: 'خدمات کارشناسی ملک، ارزیابی، خسارت، خودرو، مالی، فنی، پیمان و فناوری اطلاعات با دامنه روشن.',
-  alternates: { canonical: '/expert-services' },
-};
+  path: '/expert-services',
+});
 
 export default function ExpertServicesPage() {
   return (

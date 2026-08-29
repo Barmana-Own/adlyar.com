@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import {
   ArrowLeft,
   BarChart3,
@@ -15,13 +14,14 @@ import { FAQList } from '@/components/faq-list';
 import { LeadForm } from '@/components/forms/lead-form';
 import { CTASection, PageHero, SectionHeader } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 import { commonFaqs, corporateServices, engagementModels } from '@/lib/site-data';
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: 'خدمات حقوقی سازمانی',
   description: 'پشتیبانی حقوقی B2B برای قرارداد، مطالبات، اختلاف، ریسک، گزارش‌دهی و میز حقوقی اختصاصی.',
-  alternates: { canonical: '/corporate' },
-};
+  path: '/corporate',
+});
 
 const problems = [
   ['درخواست‌های پراکنده', 'نیازهای حقوقی از کانال‌های مختلف می‌آیند و اولویت یکسانی ندارند.'],

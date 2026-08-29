@@ -52,6 +52,7 @@
   --color-success: #247052;
   --color-warning: #996515;
   --color-error: #b33a3a;
+  --color-on-dark-muted: color-mix(in srgb, #ffffff 72%, var(--color-primary));
 
   --background: var(--color-background);
   --foreground: var(--color-text);

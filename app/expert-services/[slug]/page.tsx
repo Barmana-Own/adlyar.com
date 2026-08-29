@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ServiceDetail } from '@/components/service-detail';
+import { createPageMetadata } from '@/lib/seo';
 import { expertServiceRecords } from '@/lib/site-data';
 
 export function generateStaticParams() {
@@ -11,8 +12,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const service = expertServiceRecords.find((item) => item.slug === slug);
-  if (!service) return {};
-  return { title: service.title, description: service.shortDescription, alternates: { canonical: `/expert-services/${service.slug}` } };
+  if (!service) return { robots: { index: false, follow: true } };
+  return createPageMetadata({ title: service.title, description: service.shortDescription, path: `/expert-services/${service.slug}` });
 }
 
 export default async function ExpertServicePage({ params }: { params: Promise<{ slug: string }> }) {

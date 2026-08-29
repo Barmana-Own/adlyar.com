@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import {
   ArrowLeft,
@@ -25,10 +26,6 @@ import {
 } from '@/components/ui/accordion';
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
@@ -55,9 +52,16 @@ const expertMenu = [
   { label: 'فناوری اطلاعات', href: '/expert-services/information-technology', icon: BookOpenText },
 ];
 
+const SearchDialogContent = dynamic(
+  () => import('@/components/search-dialog').then((module) => module.SearchDialogContent),
+  { ssr: false },
+);
+
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const servicesTriggerRef = useRef<HTMLButtonElement>(null);
+  const servicesMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -66,6 +70,24 @@ export function SiteHeader() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!servicesOpen) return;
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!servicesMenuRef.current?.contains(event.target as Node)) setServicesOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setServicesOpen(false);
+      servicesTriggerRef.current?.focus();
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [servicesOpen]);
 
   return (
     <header className={'site-header' + (isScrolled ? ' is-scrolled' : '')}>
@@ -77,8 +99,12 @@ export function SiteHeader() {
             خانه
           </a>
 
-          <div className={'nav-menu' + (servicesOpen ? ' is-open' : '')}>
+          <div
+            ref={servicesMenuRef}
+            className={'nav-menu' + (servicesOpen ? ' is-open' : '')}
+          >
             <button
+              ref={servicesTriggerRef}
               className="nav-menu__trigger"
               type="button"
               aria-haspopup="true"
@@ -144,25 +170,7 @@ export function SiteHeader() {
             >
               <Search aria-hidden="true" />
             </DialogTrigger>
-            <DialogContent className="search-dialog">
-              <DialogHeader>
-                <DialogTitle>در عدل‌یار دنبال چه چیزی هستید؟</DialogTitle>
-                <DialogDescription>
-                  نام خدمت یا موضوع مسئله را بنویسید.
-                </DialogDescription>
-              </DialogHeader>
-              <label className="search-field">
-                <span className="sr-only">عبارت جستجو</span>
-                <Search aria-hidden="true" />
-                <input name="query" placeholder="مثلاً بررسی قرارداد یا اختلاف ملکی" />
-              </label>
-              <div className="search-suggestions">
-                <span>پیشنهادهای سریع</span>
-                <a href="/legal-services">خدمات حقوقی</a>
-                <a href="/expert-services">خدمات کارشناسی</a>
-                <a href="/request">راهنمای انتخاب خدمت</a>
-              </div>
-            </DialogContent>
+            <SearchDialogContent />
           </Dialog>
 
           <a className="button button--ghost desktop-only" href="/book">

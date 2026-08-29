@@ -1,6 +1,6 @@
 'use client';
 
-import { type SyntheticEvent, useMemo, useRef, useState } from 'react';
+import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,7 +14,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ApiUnavailableError, submitQuickInquiry } from '@/lib/api-client';
+import { submitQuickInquiry } from '@/lib/api-client';
+import { safeApiMessage, safeServerFieldErrors } from '@/lib/api/form-errors';
 import { helpOptions, quickFormCopy } from '@/lib/home-data';
 
 type FormValues = {
@@ -56,6 +57,11 @@ export function NeedAndInquiry() {
   const [statusMessage, setStatusMessage] = useState('');
   const [mobileStep, setMobileStep] = useState<1 | 2>(1);
   const formRef = useRef<HTMLFormElement>(null);
+  const controllerRef = useRef<AbortController | null>(null);
+  const inFlightRef = useRef(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
+
+  useEffect(() => () => controllerRef.current?.abort(), []);
 
   const selected = useMemo(
     () => helpOptions.find((option) => option.id === selectedId) ?? helpOptions[0],
@@ -65,6 +71,7 @@ export function NeedAndInquiry() {
   const updateValue = <Key extends keyof FormValues>(key: Key, value: FormValues[Key]) => {
     setValues((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: undefined }));
+    idempotencyKeyRef.current = null;
     if (submitState !== 'idle') {
       setSubmitState('idle');
       setStatusMessage('');
@@ -73,6 +80,7 @@ export function NeedAndInquiry() {
 
   const chooseNeed = (id: string) => {
     setSelectedId(id);
+    idempotencyKeyRef.current = null;
     setValues((current) => ({ ...current, subject: '' }));
     setErrors((current) => ({ ...current, subject: undefined }));
     window.requestAnimationFrame(() => {
@@ -120,15 +128,19 @@ export function NeedAndInquiry() {
   const handleNext = () => {
     if (!validateStepOne()) return;
     setMobileStep(2);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    formRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   };
 
   const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (submitState === 'loading' || !validateAll()) return;
-
+    if (inFlightRef.current || submitState === 'loading' || !validateAll()) return;
+    inFlightRef.current = true;
+    controllerRef.current?.abort();
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    controllerRef.current = controller;
+    const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+    idempotencyKeyRef.current = idempotencyKey;
 
     setSubmitState('loading');
     setStatusMessage('در حال ارسال درخواست…');
@@ -145,25 +157,21 @@ export function NeedAndInquiry() {
           urgency: values.urgency,
           consent: values.consent,
         },
-        controller.signal,
+        { signal: controller.signal, idempotencyKey },
       );
+      idempotencyKeyRef.current = null;
       setSubmitState('success');
       setStatusMessage('درخواست شما ثبت شد و برای بررسی اولیه در صف قرار گرفت.');
       setValues(initialValues);
       setMobileStep(1);
     } catch (error) {
+      const fieldErrors = safeServerFieldErrors(error, Object.keys(initialValues));
+      if (Object.keys(fieldErrors).length) setErrors({ ...errors, ...fieldErrors });
       setSubmitState('error');
-      if (error instanceof ApiUnavailableError) {
-        setStatusMessage(
-          'فرم آماده است، اما اتصال آن به سامانه پذیرش این محیط هنوز فعال نشده است.',
-        );
-      } else if (error instanceof DOMException && error.name === 'AbortError') {
-        setStatusMessage('زمان ارسال بیش از حد طول کشید. لطفاً دوباره تلاش کنید.');
-      } else {
-        setStatusMessage('ارسال انجام نشد. لطفاً دوباره تلاش کنید.');
-      }
+      setStatusMessage(safeApiMessage(error, 'فرم آماده است، اما اتصال آن به سامانه پذیرش این محیط هنوز فعال نشده است.'));
     } finally {
-      window.clearTimeout(timeout);
+      inFlightRef.current = false;
+      if (controllerRef.current === controller) controllerRef.current = null;
     }
   };
 

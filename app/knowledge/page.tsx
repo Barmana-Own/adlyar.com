@@ -1,15 +1,15 @@
-import type { Metadata } from 'next';
 import { ArrowUpLeft } from 'lucide-react';
 
 import { ArticleCard, PageHero, SectionHeader } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 import { articles, knowledgeCategories } from '@/lib/site-data';
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: 'مرکز دانش',
   description: 'راهنماهای کاربردی درباره قرارداد، املاک، شرکت‌ها، کارشناسی و آماده‌سازی بهتر پرونده.',
-  alternates: { canonical: '/knowledge' },
-};
+  path: '/knowledge',
+});
 
 export default function KnowledgePage() {
   const featured = articles.find((article) => article.featured) ?? articles[0];

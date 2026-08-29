@@ -30,9 +30,9 @@ function FilterControls({
       </label>
       <fieldset>
         <legend>فیلتر موضوع</legend>
-        <button type="button" className={activeTag === 'all' ? 'is-active' : ''} onClick={() => setActiveTag('all')}>همه خدمات</button>
+        <button type="button" aria-pressed={activeTag === 'all'} className={activeTag === 'all' ? 'is-active' : ''} onClick={() => setActiveTag('all')}>همه خدمات</button>
         {tags.map((tag) => (
-          <button type="button" className={activeTag === tag ? 'is-active' : ''} onClick={() => setActiveTag(tag)} key={tag}>{tag}</button>
+          <button type="button" aria-pressed={activeTag === tag} className={activeTag === tag ? 'is-active' : ''} onClick={() => setActiveTag(tag)} key={tag}>{tag}</button>
         ))}
       </fieldset>
     </div>
@@ -63,7 +63,7 @@ export function ServiceListing({ kind }: { kind: 'legal' | 'expert' }) {
 
         <div className="listing-main">
           <div className="listing-toolbar">
-            <p><strong>{filtered.length}</strong> خدمت قابل مشاهده</p>
+            <p aria-live="polite"><strong>{filtered.length}</strong> خدمت قابل مشاهده</p>
             <Sheet>
               <SheetTrigger render={<button className="button button--outline mobile-filter-button" type="button" aria-label="باز کردن فیلتر خدمات" />}>
                 <Filter aria-hidden="true" /> فیلتر

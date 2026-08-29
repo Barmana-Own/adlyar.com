@@ -1,14 +1,13 @@
-import type { Metadata } from 'next';
-
 import { CTASection, PageHero } from '@/components/page-elements';
 import { ServiceListing } from '@/components/service-listing';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: 'خدمات حقوقی',
   description: 'مشاوره، قرارداد، ملک، خانواده، کیفری، تجاری، وصول مطالبات و امور شرکت‌ها با بررسی اولیه ساختاریافته.',
-  alternates: { canonical: '/legal-services' },
-};
+  path: '/legal-services',
+});
 
 export default function LegalServicesPage() {
   return (

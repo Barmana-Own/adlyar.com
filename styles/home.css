@@ -46,13 +46,11 @@
   transition: rotate 240ms var(--ease-premium);
 }
 
-.nav-menu:hover .nav-menu__trigger,
-.nav-menu:focus-within .nav-menu__trigger {
+.nav-menu.is-open .nav-menu__trigger {
   color: var(--color-primary);
 }
 
-.nav-menu:hover .nav-menu__trigger svg,
-.nav-menu:focus-within .nav-menu__trigger svg {
+.nav-menu.is-open .nav-menu__trigger svg {
   rotate: 180deg;
 }
 
@@ -80,8 +78,6 @@
   backdrop-filter: blur(22px);
 }
 
-.nav-menu:hover .mega-menu,
-.nav-menu:focus-within .mega-menu,
 .nav-menu.is-open .mega-menu {
   opacity: 1;
   visibility: visible;
@@ -238,6 +234,92 @@
   font-size: 0.7rem;
   font-weight: 650;
 }
+
+.search-results {
+  min-height: 4rem;
+}
+
+.search-loading,
+.search-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 3%, transparent);
+  padding: 0.85rem 1rem;
+  color: var(--color-muted-text);
+  font-size: 0.78rem;
+}
+
+.search-loading svg,
+.search-empty > svg {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  color: var(--color-secondary);
+}
+
+.search-empty div {
+  flex: 1;
+}
+
+.search-empty strong,
+.search-empty p {
+  display: block;
+  margin: 0;
+}
+
+.search-empty strong { color: var(--color-primary); }
+.search-empty p { margin-block-start: 0.1rem; font-size: 0.7rem; }
+.search-empty a,
+.search-empty button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-secondary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.search-empty a svg { width: 0.9rem; }
+.search-empty.is-error > svg { color: var(--color-error); }
+
+.search-result-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-result-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.8rem;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.search-result-list a:hover,
+.search-result-list a:focus-visible {
+  border-color: color-mix(in srgb, var(--color-secondary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-secondary) 5%, transparent);
+}
+
+.search-result-list span { min-width: 0; }
+.search-result-list strong,
+.search-result-list small { display: block; }
+.search-result-list strong { color: var(--color-primary); font-size: 0.8rem; }
+.search-result-list small { overflow: hidden; color: var(--color-muted-text); font-size: 0.68rem; text-overflow: ellipsis; white-space: nowrap; }
+.search-result-list svg { flex: 0 0 auto; width: 1rem; color: var(--color-secondary); }
+.search-source-note { margin: -0.15rem 0 0; color: var(--color-muted-text); font-size: 0.65rem; }
 
 .mobile-drawer {
   width: min(92vw, 25rem) !important;
@@ -1511,7 +1593,7 @@
 
 .process-step__arrow {
   width: 1.05rem;
-  color: color-mix(in srgb, #ffffff 35%, transparent);
+  color: var(--color-on-dark-muted);
   transition:
     color 220ms ease,
     transform 260ms var(--ease-premium);
@@ -1710,7 +1792,7 @@
 }
 
 .process-visual__progress > span {
-  color: color-mix(in srgb, #ffffff 50%, transparent);
+  color: var(--color-on-dark-muted);
   font-size: 0.62rem;
 }
 
@@ -1727,7 +1809,8 @@
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
-  transition: width 600ms var(--ease-premium);
+  transform-origin: right;
+  transition: transform 600ms var(--ease-premium);
 }
 
 @keyframes process-card-in {
@@ -2095,7 +2178,7 @@
 .secure-flow__document small {
   margin-block-start: auto;
   border-block-start: 1px solid color-mix(in srgb, #ffffff 9%, transparent);
-  color: color-mix(in srgb, #ffffff 57%, transparent);
+  color: var(--color-on-dark-muted);
   padding-block-start: 0.7rem;
   font-size: 0.6rem;
 }
@@ -2206,7 +2289,7 @@
 .secure-flow__signal::after {
   content: 'جریان دسترسی کنترل‌شده';
   margin-inline-start: 0.35rem;
-  color: color-mix(in srgb, #ffffff 38%, transparent);
+  color: var(--color-on-dark-muted);
   font-size: 0.58rem;
 }
 
@@ -2280,7 +2363,7 @@
 
 .security-features p {
   margin: 0.35rem 0 0;
-  color: color-mix(in srgb, #ffffff 54%, transparent);
+  color: var(--color-on-dark-muted);
   font-size: 0.64rem;
   line-height: 1.75;
 }
@@ -2314,7 +2397,7 @@
 
 .security-note p {
   margin: 0;
-  color: color-mix(in srgb, #ffffff 48%, transparent);
+  color: var(--color-on-dark-muted);
   font-size: 0.64rem;
 }
 
@@ -2466,7 +2549,7 @@
     margin-inline-start: 3.6rem;
     margin-block-start: -0.65rem;
     border-inline-start: 1px solid color-mix(in srgb, var(--color-secondary) 28%, transparent);
-    color: color-mix(in srgb, #ffffff 52%, transparent);
+    color: var(--color-on-dark-muted);
     padding: 0.2rem 0.8rem 0.9rem;
     font-size: 0.64rem;
   }

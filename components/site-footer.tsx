@@ -20,14 +20,14 @@ export function SiteFooter() {
         </div>
 
         {footerColumns.map((column) => (
-          <nav aria-label={column.title} key={column.title}>
-            <strong>{column.title}</strong>
-            {column.links.map(([label, href]) => (
-              <a href={href} key={href}>
-                {label}
-              </a>
-            ))}
-          </nav>
+          <details className="footer-group" key={column.title}>
+            <summary>{column.title}</summary>
+            <nav aria-label={column.title}>
+              {column.links.map(([label, href]) => (
+                <a href={href} key={href}>{label}</a>
+              ))}
+            </nav>
+          </details>
         ))}
       </div>
 

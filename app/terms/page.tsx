@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
 import { LegalDocument } from '@/components/legal-document';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'شرایط استفاده', alternates: { canonical: '/terms' } };
+export const metadata = createPageMetadata({ title: 'شرایط استفاده', description: 'چارچوب استفاده از وب‌سایت، ثبت درخواست و ارتباط با خدمات عدل‌یار.', path: '/terms', noIndex: true });
 export default function TermsPage() { return <LegalDocument title="شرایط استفاده" summary="چارچوب استفاده از وب‌سایت، ثبت درخواست و ارتباط با خدمات عدل‌یار." sections={[
   { title: 'ماهیت پلتفرم', paragraphs: ['عدل‌یار یک مسیر ساختاریافته برای دریافت اطلاعات اولیه، تشخیص نوع نیاز و هماهنگی خدمت فراهم می‌کند. ثبت فرم به‌تنهایی رابطه حرفه‌ای یا تعهد به پذیرش ایجاد نمی‌کند.'] },
   { title: 'صحت اطلاعات', paragraphs: ['کاربر مسئول است اطلاعات را تا حد آگاهی خود صحیح و مرتبط وارد کند و از بارگذاری اطلاعات اشخاص ثالث بدون مجوز لازم خودداری کند.'] },

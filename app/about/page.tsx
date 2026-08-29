@@ -1,10 +1,10 @@
-import type { Metadata } from 'next';
 import { ClipboardCheck, Eye, HeartHandshake, LockKeyhole, Network, Route, Scale, ShieldCheck } from 'lucide-react';
 
 import { CTASection, PageHero, SectionHeader } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'درباره عدل‌یار', description: 'چرایی شکل‌گیری، مأموریت، ارزش‌ها، فرآیند، شبکه تخصصی و اصول محرمانگی عدل‌یار.', alternates: { canonical: '/about' } };
+export const metadata = createPageMetadata({ title: 'درباره عدل‌یار', description: 'چرایی شکل‌گیری، مأموریت، ارزش‌ها، فرآیند، شبکه تخصصی و اصول محرمانگی عدل‌یار.', path: '/about' });
 
 const values = [
   ['شفافیت پیش از شروع', 'دامنه، خروجی، هزینه و محدودیت‌ها باید قابل فهم باشند.', Eye],

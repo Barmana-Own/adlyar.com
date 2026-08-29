@@ -24,10 +24,12 @@ export function FileUpload({
   files,
   onChange,
   required = false,
+  uploadState = 'idle',
 }: {
   files: LocalFile[];
   onChange: (files: LocalFile[]) => void;
   required?: boolean;
+  uploadState?: 'idle' | 'uploading' | 'success' | 'error';
 }) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -112,8 +114,8 @@ export function FileUpload({
           {files.map((item) => (
             <li key={item.id}>
               <FileCheck2 aria-hidden="true" />
-              <div><bdi>{item.file.name}</bdi><small>{formatFileSize(item.file.size)} · آماده ارسال امن</small></div>
-              <button type="button" onClick={() => onChange(files.filter((file) => file.id !== item.id))} aria-label={`حذف ${item.file.name}`}><Trash2 /></button>
+              <div><bdi>{item.file.name}</bdi><small>{formatFileSize(item.file.size)} · {{ idle: 'آماده ارسال امن', uploading: 'در حال ارسال امن', success: 'ارسال شد', error: 'ارسال ناموفق؛ فایل روی دستگاه حفظ شده' }[uploadState]}</small>{uploadState !== 'idle' && <progress className={`file-progress is-${uploadState}`} aria-label={`وضعیت ارسال ${item.file.name}`} max={100} value={uploadState === 'success' ? 100 : uploadState === 'error' ? 0 : undefined} />}</div>
+              <button type="button" disabled={uploadState === 'uploading'} onClick={() => onChange(files.filter((file) => file.id !== item.id))} aria-label={`حذف ${item.file.name}`}><Trash2 /></button>
             </li>
           ))}
         </ul>

@@ -255,6 +255,7 @@ export type ArticleRecord = {
   category: string;
   author: string;
   date: string;
+  publishedAt: string;
   readTime: string;
   featured?: boolean;
   sections: Array<{ heading: string; body: string }>;
@@ -281,6 +282,7 @@ export const articles: ArticleRecord[] = [
     category: 'قرارداد',
     author: 'تحریریه عدل‌یار',
     date: '۷ شهریور ۱۴۰۵',
+    publishedAt: '2026-08-29',
     readTime: '۷ دقیقه',
     featured: true,
     sections: [
@@ -296,6 +298,7 @@ export const articles: ArticleRecord[] = [
     category: 'کارشناسی',
     author: 'تحریریه عدل‌یار',
     date: '۳ شهریور ۱۴۰۵',
+    publishedAt: '2026-08-25',
     readTime: '۶ دقیقه',
     sections: [
       { heading: 'پرسش حقوقی یا فنی؟', body: 'مالکیت و تعهد قراردادی پرسش حقوقی‌اند؛ حدود، عیب، ارزش یا میزان خسارت معمولاً نیازمند ورودی تخصصی هستند.' },
@@ -309,6 +312,7 @@ export const articles: ArticleRecord[] = [
     category: 'راهنمای پرونده',
     author: 'تحریریه عدل‌یار',
     date: '۲۹ مرداد ۱۴۰۵',
+    publishedAt: '2026-08-20',
     readTime: '۵ دقیقه',
     sections: [
       { heading: 'هر رویداد در یک خط', body: 'برای هر اتفاق، تاریخ، شخص یا سازمان درگیر، اقدام انجام‌شده و سند مرتبط را در یک خط ثبت کنید.' },
@@ -322,6 +326,7 @@ export const articles: ArticleRecord[] = [
     category: 'شرکت‌ها',
     author: 'تحریریه عدل‌یار',
     date: '۲۴ مرداد ۱۴۰۵',
+    publishedAt: '2026-08-15',
     readTime: '۸ دقیقه',
     sections: [
       { heading: 'الگوی نیاز را ببینید', body: 'اگر قرارداد، مطالبه یا پرسش‌های عملیاتی به‌صورت تکرارشونده ایجاد می‌شوند، یک مدل مستمر می‌تواند زمان پاسخ و کیفیت گزارش را قابل پیش‌بینی‌تر کند.' },

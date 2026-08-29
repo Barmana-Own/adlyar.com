@@ -16,6 +16,8 @@ import {
   SectionHeader,
 } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { StructuredData } from '@/components/structured-data';
+import { absoluteUrl, breadcrumbSchema, faqSchema, SITE_URL } from '@/lib/seo';
 import type { ServiceRecord } from '@/lib/site-data';
 import { articles } from '@/lib/site-data';
 
@@ -26,6 +28,22 @@ export function ServiceDetail({ service, kind }: { service: ServiceRecord; kind:
 
   return (
     <SiteShell>
+      <StructuredData data={[
+        breadcrumbSchema([
+          { label: 'خانه', path: '/' },
+          { label: baseLabel, path: basePath },
+          { label: service.title, path: `${basePath}/${service.slug}` },
+        ]),
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: service.title,
+          description: service.overview,
+          url: absoluteUrl(`${basePath}/${service.slug}`),
+          provider: { '@id': `${SITE_URL}/#organization` },
+        },
+        faqSchema(service.faqs),
+      ]} />
       <article>
         <header className="detail-hero">
           <div className="container">

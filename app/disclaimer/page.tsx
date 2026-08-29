@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
 import { LegalDocument } from '@/components/legal-document';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'سلب مسئولیت', alternates: { canonical: '/disclaimer' } };
+export const metadata = createPageMetadata({ title: 'سلب مسئولیت', description: 'حدود محتوای عمومی، بررسی اولیه و نتیجه خدمات حقوقی و کارشناسی.', path: '/disclaimer', noIndex: true });
 export default function DisclaimerPage() { return <LegalDocument title="سلب مسئولیت" summary="حدود محتوای عمومی، بررسی اولیه و نتیجه خدمات حقوقی و کارشناسی." sections={[
   { title: 'محتوای عمومی', paragraphs: ['مطالب مرکز دانش و واژه‌نامه برای آشنایی عمومی‌اند و جایگزین مشاوره یا بررسی شرایط و مدارک پرونده مشخص نیستند.'] },
   { title: 'بررسی اولیه', paragraphs: ['بررسی اولیه برای شناخت نوع نیاز است و لزوماً به معنی نظر نهایی حقوقی، کارشناسی، قبول وکالت یا پذیرش پروژه نیست.'] },

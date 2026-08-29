@@ -4,11 +4,10 @@ import { useEffect } from 'react';
 
 export function MotionController() {
   useEffect(() => {
-    document.documentElement.classList.add('motion-ready');
     const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
     if (!('IntersectionObserver' in window)) {
       nodes.forEach((node) => node.classList.add('is-visible'));
-      return () => document.documentElement.classList.remove('motion-ready');
+      return;
     }
 
     const observer = new IntersectionObserver(
@@ -25,7 +24,6 @@ export function MotionController() {
     nodes.forEach((node) => observer.observe(node));
     return () => {
       observer.disconnect();
-      document.documentElement.classList.remove('motion-ready');
     };
   }, []);
 

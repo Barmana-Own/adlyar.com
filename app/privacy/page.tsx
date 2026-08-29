@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
 import { LegalDocument } from '@/components/legal-document';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = { title: 'حریم خصوصی', alternates: { canonical: '/privacy' } };
+export const metadata = createPageMetadata({ title: 'حریم خصوصی', description: 'اصول دریافت حداقلی اطلاعات، استفاده محدود و مدیریت غیرعمومی مدارک.', path: '/privacy', noIndex: true });
 export default function PrivacyPage() { return <LegalDocument title="حریم خصوصی" summary="اصول دریافت حداقلی اطلاعات، استفاده محدود و مدیریت غیرعمومی مدارک." sections={[
   { title: 'اطلاعات دریافتی', paragraphs: ['اطلاعات تماس، شرح مسئله، انتخاب‌های فرم و مدارکی که کاربر آگاهانه ارسال می‌کند ممکن است برای بررسی درخواست دریافت شوند.'] },
   { title: 'هدف استفاده', paragraphs: ['اطلاعات فقط برای بررسی، ارتباط، تشخیص نوع خدمت، کنترل تعارض و ارائه خدمت توافق‌شده استفاده می‌شود؛ اهداف دیگر باید مبنا و رضایت جداگانه داشته باشند.'] },

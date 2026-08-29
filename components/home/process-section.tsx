@@ -83,7 +83,7 @@ export function ProcessSection() {
             })}
           </ol>
 
-          <div className="process-visual-wrap" aria-live="polite">
+          <div className="process-visual-wrap">
             <div className="process-visual">
               <div className="process-visual__top">
                 <span>
@@ -120,7 +120,7 @@ export function ProcessSection() {
               <div className="process-visual__progress">
                 <span>پیشرفت فرایند</span>
                 <div>
-                  <i style={{ width: `${((activeIndex + 1) / processSteps.length) * 100}%` }} />
+                  <i style={{ transform: `scaleX(${(activeIndex + 1) / processSteps.length})` }} />
                 </div>
               </div>
             </div>

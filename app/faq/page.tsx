@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-
 import { FAQList } from '@/components/faq-list';
 import { CTASection, PageHero, SectionHeader } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { StructuredData } from '@/components/structured-data';
+import { createPageMetadata, faqSchema } from '@/lib/seo';
 import { commonFaqs } from '@/lib/site-data';
 
-export const metadata: Metadata = { title: 'پرسش‌های متداول', description: 'پاسخ به پرسش‌های رایج درباره ثبت درخواست، هزینه، محرمانگی، مدارک و شروع خدمت.', alternates: { canonical: '/faq' } };
+export const metadata = createPageMetadata({ title: 'پرسش‌های متداول', description: 'پاسخ به پرسش‌های رایج درباره ثبت درخواست، هزینه، محرمانگی، مدارک و شروع خدمت.', path: '/faq' });
 
 const grouped = [
   { title: 'شروع و انتخاب خدمت', items: commonFaqs.slice(0, 2) },
@@ -14,5 +14,5 @@ const grouped = [
 ];
 
 export default function FAQPage() {
-  return <SiteShell><PageHero kicker="پرسش‌های متداول" title="پاسخ روشن، پیش از شروع مسیر" description="موضوع‌ها را بر اساس مرحله شروع، دامنه خدمت و محرمانگی دسته‌بندی کرده‌ایم." /><section className="section faq-page"><div className="container">{grouped.map((group) => <section className="faq-group" key={group.title}><SectionHeader title={group.title} /><FAQList items={group.items} /></section>)}</div></section><CTASection /></SiteShell>;
+  return <SiteShell><StructuredData data={faqSchema(commonFaqs)} /><PageHero kicker="پرسش‌های متداول" title="پاسخ روشن، پیش از شروع مسیر" description="موضوع‌ها را بر اساس مرحله شروع، دامنه خدمت و محرمانگی دسته‌بندی کرده‌ایم." /><section className="section faq-page"><div className="container">{grouped.map((group) => <section className="faq-group" key={group.title}><SectionHeader title={group.title} /><FAQList items={group.items} /></section>)}</div></section><CTASection /></SiteShell>;
 }

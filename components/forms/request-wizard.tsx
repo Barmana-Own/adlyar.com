@@ -20,7 +20,13 @@ import { FileUpload, type LocalFile } from '@/components/forms/file-upload';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ApiUnavailableError, submitPublicForm } from '@/lib/api-client';
+import {
+  submitContractReviewRequest,
+  submitCorporateLead,
+  submitExpertRequest,
+  submitServiceRequest,
+} from '@/lib/api-client';
+import { safeApiMessage, safeServerFieldErrors } from '@/lib/api/form-errors';
 import { isEmail, isIranMobile, toEnglishDigits } from '@/lib/form-utils';
 import { expertServiceRecords, legalServiceRecords } from '@/lib/site-data';
 
@@ -66,7 +72,13 @@ const stages = ['پیش از هر اقدام', 'در حال مذاکره', 'اق
 
 function reducer(state: WizardState, action: Action): WizardState {
   if (action.type === 'set') {
-    const next = { ...state, [action.field]: action.value, errors: { ...state.errors, [action.field]: '' } };
+    const next = {
+      ...state,
+      [action.field]: action.value,
+      errors: { ...state.errors, [action.field]: '' },
+      submitState: state.submitState === 'error' ? 'idle' as const : state.submitState,
+      statusMessage: state.submitState === 'error' ? '' : state.statusMessage,
+    };
     if (action.field === 'requestType') next.topic = '';
     return next;
   }
@@ -104,6 +116,9 @@ export function RequestWizard() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const didMount = useRef(false);
+  const controllerRef = useRef<AbortController | null>(null);
+  const inFlightRef = useRef(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const privacyId = 'request-privacy-consent';
   const accuracyId = 'request-accuracy-consent';
 
@@ -131,7 +146,12 @@ export function RequestWizard() {
     }
   }, []);
 
-  const set = (field: keyof WizardState, value: WizardState[keyof WizardState]) => dispatch({ type: 'set', field, value });
+  useEffect(() => () => controllerRef.current?.abort(), []);
+
+  const set = (field: keyof WizardState, value: WizardState[keyof WizardState]) => {
+    idempotencyKeyRef.current = null;
+    dispatch({ type: 'set', field, value });
+  };
 
   const validateStep = () => {
     const errors: Record<string, string> = {};
@@ -165,41 +185,63 @@ export function RequestWizard() {
   };
 
   const submit = async () => {
-    if (!validateStep() || state.submitState === 'loading') return;
+    if (inFlightRef.current || !validateStep() || state.submitState === 'loading') return;
+    inFlightRef.current = true;
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+    idempotencyKeyRef.current = idempotencyKey;
     dispatch({ type: 'submit', state: 'loading', message: 'در حال ارسال درخواست…' });
+    const payload = {
+      requestType: state.requestType,
+      topic: state.topic,
+      description: state.description.trim(),
+      desiredOutcome: state.outcome.trim(),
+      currentStage: state.stage,
+      urgency: state.urgency,
+      contact: {
+        name: state.name.trim(),
+        mobile: toEnglishDigits(state.mobile).replace(/[\s-]/g, ''),
+        email: state.email.trim() || undefined,
+        city: state.city.trim(),
+      },
+      consents: { privacy: state.privacy, accuracy: state.accuracy },
+    };
+    const files = state.files.map(({ file }) => file);
+    const options = { signal: controller.signal, idempotencyKey };
     try {
-      const result = await submitPublicForm('requests', {
-        requestType: state.requestType,
-        topic: state.topic,
-        description: state.description.trim(),
-        desiredOutcome: state.outcome.trim(),
-        currentStage: state.stage,
-        urgency: state.urgency,
-        contact: {
-          name: state.name.trim(),
-          mobile: toEnglishDigits(state.mobile).replace(/[\s-]/g, ''),
-          email: state.email.trim() || undefined,
-          city: state.city.trim(),
-        },
-        attachments: state.files.map(({ file }) => ({ name: file.name, size: file.size, type: file.type })),
-        consents: { privacy: state.privacy, accuracy: state.accuracy },
-      });
+      const result = state.requestType === 'expert'
+        ? await submitExpertRequest(payload, files, options)
+        : state.requestType === 'corporate'
+          ? await submitCorporateLead(payload, files, options)
+          : state.requestType === 'contract'
+            ? await submitContractReviewRequest(payload, files, options)
+            : await submitServiceRequest(payload, files, options);
+      idempotencyKeyRef.current = null;
       dispatch({ type: 'submit', state: 'success', message: 'درخواست ثبت شد.', reference: result.id ?? '' });
     } catch (error) {
+      const fieldErrors = safeServerFieldErrors(
+        error,
+        ['requestType', 'topic', 'description', 'outcome', 'stage', 'urgency', 'name', 'mobile', 'email', 'city', 'privacy', 'accuracy'],
+        { desiredOutcome: 'outcome', currentStage: 'stage' },
+      );
+      if (Object.keys(fieldErrors).length) dispatch({ type: 'errors', errors: fieldErrors });
       dispatch({
         type: 'submit',
         state: 'error',
-        message: error instanceof ApiUnavailableError
-          ? 'فرم کامل است، اما اتصال امن به سامانه پذیرش این محیط هنوز فعال نشده است. اطلاعات شما ارسال نشد.'
-          : 'ارسال انجام نشد. اطلاعات حفظ شده است؛ لطفاً دوباره تلاش کنید.',
+        message: safeApiMessage(error, 'فرم کامل است، اما اتصال امن به سامانه پذیرش این محیط هنوز فعال نشده است. اطلاعات شما ارسال نشد.'),
       });
+    } finally {
+      inFlightRef.current = false;
+      if (controllerRef.current === controller) controllerRef.current = null;
     }
   };
 
   if (state.submitState === 'success') {
     return (
       <output className="wizard-success">
-        <span><Check /></span><h1>درخواست شما ثبت شد</h1>
+        <span><Check /></span><h2>درخواست شما ثبت شد</h2>
         {state.reference && <p>شناسه پیگیری: <bdi dir="ltr">{state.reference}</bdi></p>}
         <p>پس از بررسی اولیه، دامنه و قدم بعد از مسیر ارتباطی ثبت‌شده اعلام می‌شود.</p>
         <a className="button button--primary" href="/">بازگشت به صفحه اصلی</a>
@@ -214,7 +256,7 @@ export function RequestWizard() {
       <aside className="wizard-sidebar">
         <a className="wizard-brand" href="/">عدل‌یار <span>ثبت ساختاریافته درخواست</span></a>
         <div className="wizard-progress-copy"><strong>مرحله {state.step} از ۷</strong><span>{Math.round((state.step / 7) * 100)}٪ تکمیل</span></div>
-        <div className="wizard-progress" aria-hidden="true"><span style={{ width: `${(state.step / 7) * 100}%` }} /></div>
+        <div className="wizard-progress" aria-hidden="true"><span style={{ transform: `scaleX(${state.step / 7})` }} /></div>
         <ol className="wizard-stepper" aria-label="مراحل ثبت درخواست">
           {stepTitles.map((title, index) => {
             const number = index + 1;
@@ -228,7 +270,7 @@ export function RequestWizard() {
         <form ref={formRef} onSubmit={(event) => event.preventDefault()} noValidate>
           <div className="wizard-mobile-progress">
             <span>مرحله {state.step} از ۷</span><strong>{stepTitles[state.step - 1]}</strong>
-            <div><i style={{ width: `${(state.step / 7) * 100}%` }} /></div>
+            <div><i style={{ transform: `scaleX(${state.step / 7})` }} /></div>
           </div>
 
           {Object.keys(state.errors).length > 0 && <div className="error-summary" role="alert"><TriangleAlert /><div><strong>این مرحله کامل نشده است</strong><p>{Object.values(state.errors)[0]}</p></div></div>}
@@ -236,7 +278,7 @@ export function RequestWizard() {
           <section className="wizard-step" aria-labelledby="wizard-step-title">
             <div className="wizard-step__heading">
               <span>مرحله {state.step}</span>
-              <h1 id="wizard-step-title" ref={headingRef} tabIndex={-1}>{stepTitles[state.step - 1]}</h1>
+              <h2 id="wizard-step-title" ref={headingRef} tabIndex={-1}>{stepTitles[state.step - 1]}</h2>
               <p>{[
                 'نزدیک‌ترین مسیر را انتخاب کنید؛ اگر مطمئن نیستید گزینه آخر را بزنید.',
                 'موضوعی را انتخاب کنید که به مسئله شما نزدیک‌تر است.',
@@ -249,11 +291,12 @@ export function RequestWizard() {
             </div>
 
             {state.step === 1 && (
-              <fieldset className="choice-grid" aria-invalid={Boolean(state.errors.requestType)}>
+              <fieldset className="choice-grid" aria-invalid={Boolean(state.errors.requestType)} aria-describedby={state.errors.requestType ? 'request-type-error' : undefined}>
                 <legend className="sr-only">نوع درخواست</legend>
                 {requestTypes.map(({ id, title, description, icon: Icon }) => (
                   <button className={state.requestType === id ? 'is-selected' : ''} type="button" aria-pressed={state.requestType === id} onClick={() => set('requestType', id)} key={id}><Icon /><span><strong>{title}</strong><small>{description}</small></span>{state.requestType === id && <Check />}</button>
                 ))}
+                {state.errors.requestType && <span id="request-type-error" className="field__error">{state.errors.requestType}</span>}
               </fieldset>
             )}
 
@@ -269,30 +312,30 @@ export function RequestWizard() {
               <div className="wizard-fields">
                 <div className="field field--wide"><label htmlFor="request-description">شرح مسئله</label><Textarea id="request-description" value={state.description} onChange={(event) => set('description', event.target.value)} className="form-control form-textarea" placeholder="رویدادهای اصلی، طرف‌های درگیر و مهلت‌های مهم را بنویسید." aria-invalid={Boolean(state.errors.description)} aria-describedby={state.errors.description ? 'description-error' : undefined} />{state.errors.description && <span id="description-error" className="field__error">{state.errors.description}</span>}</div>
                 <div className="field field--wide"><label htmlFor="request-outcome">نتیجه مورد انتظار <small>اختیاری</small></label><Textarea id="request-outcome" value={state.outcome} onChange={(event) => set('outcome', event.target.value)} className="form-control" placeholder="در پایان این بررسی چه چیزی باید برای شما روشن شود؟" /></div>
-                <div className="field field--wide"><label htmlFor="request-stage">مرحله فعلی</label><select id="request-stage" value={state.stage} onChange={(event) => set('stage', event.target.value)} aria-invalid={Boolean(state.errors.stage)}><option value="">انتخاب کنید</option>{stages.map((stage) => <option value={stage} key={stage}>{stage}</option>)}</select>{state.errors.stage && <span className="field__error">{state.errors.stage}</span>}</div>
+                <div className="field field--wide"><label htmlFor="request-stage">مرحله فعلی</label><select id="request-stage" value={state.stage} onChange={(event) => set('stage', event.target.value)} aria-invalid={Boolean(state.errors.stage)} aria-describedby={state.errors.stage ? 'request-stage-error' : undefined}><option value="">انتخاب کنید</option>{stages.map((stage) => <option value={stage} key={stage}>{stage}</option>)}</select>{state.errors.stage && <span id="request-stage-error" className="field__error">{state.errors.stage}</span>}</div>
               </div>
             )}
 
-            {state.step === 4 && <FileUpload files={state.files} onChange={(files) => set('files', files)} />}
+            {state.step === 4 && <FileUpload files={state.files} uploadState={state.submitState === 'loading' ? 'uploading' : state.submitState === 'error' ? 'error' : 'idle'} onChange={(files) => set('files', files)} />}
 
             {state.step === 5 && (
-              <fieldset className="urgency-cards" aria-invalid={Boolean(state.errors.urgency)}>
+              <fieldset className="urgency-cards" aria-invalid={Boolean(state.errors.urgency)} aria-describedby={state.errors.urgency ? 'request-urgency-error' : undefined}>
                 <legend className="sr-only">فوریت</legend>
                 {[
                   ['normal', 'عادی', 'مهلت نزدیک یا اثر فوری وجود ندارد.'],
                   ['important', 'مهم', 'تصمیم یا اقدام در روزهای پیش رو لازم است.'],
                   ['urgent', 'فوری', 'مهلت دقیق یا ریسک فوری در شرح مسئله ذکر شده است.'],
-                ].map(([id, title, description]) => <button className={state.urgency === id ? 'is-selected' : ''} type="button" onClick={() => set('urgency', id)} key={id}><span>{title}</span><small>{description}</small>{state.urgency === id && <Check />}</button>)}
-                {state.errors.urgency && <span className="field__error">{state.errors.urgency}</span>}
+                ].map(([id, title, description]) => <button className={state.urgency === id ? 'is-selected' : ''} type="button" aria-pressed={state.urgency === id} onClick={() => set('urgency', id)} key={id}><span>{title}</span><small>{description}</small>{state.urgency === id && <Check />}</button>)}
+                {state.errors.urgency && <span id="request-urgency-error" className="field__error">{state.errors.urgency}</span>}
               </fieldset>
             )}
 
             {state.step === 6 && (
               <div className="wizard-fields">
-                <div className="field"><label htmlFor="wizard-name">نام و نام خانوادگی</label><Input id="wizard-name" value={state.name} onChange={(event) => set('name', event.target.value)} className="form-control" autoComplete="name" aria-invalid={Boolean(state.errors.name)} />{state.errors.name && <span className="field__error">{state.errors.name}</span>}</div>
-                <div className="field"><label htmlFor="wizard-mobile">شماره موبایل</label><Input id="wizard-mobile" value={state.mobile} onChange={(event) => set('mobile', event.target.value)} className="form-control form-control--ltr" dir="ltr" type="tel" inputMode="numeric" autoComplete="tel" placeholder="0912 123 4567" aria-invalid={Boolean(state.errors.mobile)} />{state.errors.mobile && <span className="field__error">{state.errors.mobile}</span>}</div>
-                <div className="field"><label htmlFor="wizard-email">ایمیل <small>اختیاری</small></label><Input id="wizard-email" value={state.email} onChange={(event) => set('email', event.target.value)} className="form-control form-control--ltr" dir="ltr" type="email" autoComplete="email" aria-invalid={Boolean(state.errors.email)} />{state.errors.email && <span className="field__error">{state.errors.email}</span>}</div>
-                <div className="field"><label htmlFor="wizard-city">شهر</label><Input id="wizard-city" value={state.city} onChange={(event) => set('city', event.target.value)} className="form-control" autoComplete="address-level2" aria-invalid={Boolean(state.errors.city)} />{state.errors.city && <span className="field__error">{state.errors.city}</span>}</div>
+                <div className="field"><label htmlFor="wizard-name">نام و نام خانوادگی</label><Input id="wizard-name" value={state.name} onChange={(event) => set('name', event.target.value)} className="form-control" autoComplete="name" aria-invalid={Boolean(state.errors.name)} aria-describedby={state.errors.name ? 'wizard-name-error' : undefined} />{state.errors.name && <span id="wizard-name-error" className="field__error">{state.errors.name}</span>}</div>
+                <div className="field"><label htmlFor="wizard-mobile">شماره موبایل</label><Input id="wizard-mobile" value={state.mobile} onChange={(event) => set('mobile', event.target.value)} className="form-control form-control--ltr" dir="ltr" type="tel" inputMode="numeric" autoComplete="tel" placeholder="0912 123 4567" aria-invalid={Boolean(state.errors.mobile)} aria-describedby={state.errors.mobile ? 'wizard-mobile-error' : undefined} />{state.errors.mobile && <span id="wizard-mobile-error" className="field__error">{state.errors.mobile}</span>}</div>
+                <div className="field"><label htmlFor="wizard-email">ایمیل <small>اختیاری</small></label><Input id="wizard-email" value={state.email} onChange={(event) => set('email', event.target.value)} className="form-control form-control--ltr" dir="ltr" type="email" autoComplete="email" aria-invalid={Boolean(state.errors.email)} aria-describedby={state.errors.email ? 'wizard-email-error' : undefined} />{state.errors.email && <span id="wizard-email-error" className="field__error">{state.errors.email}</span>}</div>
+                <div className="field"><label htmlFor="wizard-city">شهر</label><Input id="wizard-city" value={state.city} onChange={(event) => set('city', event.target.value)} className="form-control" autoComplete="address-level2" aria-invalid={Boolean(state.errors.city)} aria-describedby={state.errors.city ? 'wizard-city-error' : undefined} />{state.errors.city && <span id="wizard-city-error" className="field__error">{state.errors.city}</span>}</div>
               </div>
             )}
 
@@ -304,10 +347,10 @@ export function RequestWizard() {
                   <div><span>فوریت</span><strong>{{ normal: 'عادی', important: 'مهم', urgent: 'فوری' }[state.urgency as Exclude<Urgency, ''>]}</strong><button type="button" onClick={() => set('step', 5)}>ویرایش</button></div>
                   <div><span>مدارک</span><strong>{state.files.length ? `${state.files.length} فایل` : 'بدون فایل'}</strong><button type="button" onClick={() => set('step', 4)}>ویرایش</button></div>
                 </div>
-                <div className="consent-box"><Checkbox id={privacyId} checked={state.privacy} onCheckedChange={(checked) => set('privacy', checked)} aria-invalid={Boolean(state.errors.privacy)} /><label htmlFor={privacyId}><strong>حریم خصوصی</strong><small>با بررسی اطلاعات در دامنه این درخواست موافقم.</small></label></div>
-                {state.errors.privacy && <span className="field__error">{state.errors.privacy}</span>}
-                <div className="consent-box"><Checkbox id={accuracyId} checked={state.accuracy} onCheckedChange={(checked) => set('accuracy', checked)} aria-invalid={Boolean(state.errors.accuracy)} /><label htmlFor={accuracyId}><strong>صحت اطلاعات</strong><small>تا حد آگاهی من، اطلاعات واردشده صحیح است.</small></label></div>
-                {state.errors.accuracy && <span className="field__error">{state.errors.accuracy}</span>}
+                <div className="consent-box"><Checkbox id={privacyId} checked={state.privacy} onCheckedChange={(checked) => set('privacy', checked)} aria-invalid={Boolean(state.errors.privacy)} aria-describedby={state.errors.privacy ? 'wizard-privacy-error' : undefined} /><label htmlFor={privacyId}><strong>حریم خصوصی</strong><small>با بررسی اطلاعات در دامنه این درخواست موافقم.</small></label></div>
+                {state.errors.privacy && <span id="wizard-privacy-error" className="field__error">{state.errors.privacy}</span>}
+                <div className="consent-box"><Checkbox id={accuracyId} checked={state.accuracy} onCheckedChange={(checked) => set('accuracy', checked)} aria-invalid={Boolean(state.errors.accuracy)} aria-describedby={state.errors.accuracy ? 'wizard-accuracy-error' : undefined} /><label htmlFor={accuracyId}><strong>صحت اطلاعات</strong><small>تا حد آگاهی من، اطلاعات واردشده صحیح است.</small></label></div>
+                {state.errors.accuracy && <span id="wizard-accuracy-error" className="field__error">{state.errors.accuracy}</span>}
               </div>
             )}
           </section>

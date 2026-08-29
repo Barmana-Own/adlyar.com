@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, UserRoundSearch } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ExpertCard } from '@/components/page-elements';
@@ -25,9 +25,8 @@ export function ExpertListing() {
           <label><span>زبان</span><select disabled aria-label="فیلتر زبان پس از اتصال داده فعال می‌شود"><option>فارسی</option></select></label>
         </div>
         <div className="data-notice"><strong>شفافیت داده</strong><p>این محیط هنوز به پایگاه اطلاعات تأییدشده متخصصان متصل نیست؛ بنابراین نام، عکس، سابقه، شهر و صلاحیت ساختگی نمایش داده نمی‌شود.</p></div>
-        <div className="expert-grid">
-          {filtered.map((profile) => <ExpertCard profile={profile} key={profile.slug} />)}
-        </div>
+        <p className="sr-only" aria-live="polite">{filtered.length} نتیجه قابل مشاهده است.</p>
+        {filtered.length ? <div className="expert-grid">{filtered.map((profile) => <ExpertCard profile={profile} key={profile.slug} />)}</div> : <div className="empty-state"><UserRoundSearch aria-hidden="true" /><h2>متخصصی با این فیلتر پیدا نشد</h2><p>عبارت یا تخصص را تغییر دهید. مشخصات تأییدنشده نمایش داده نمی‌شود.</p><button className="button button--outline" type="button" onClick={() => { setQuery(''); setSpecialty('all'); }}>پاک‌کردن فیلتر</button></div>}
       </div>
     </section>
   );

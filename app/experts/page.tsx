@@ -1,14 +1,14 @@
-import type { Metadata } from 'next';
-
 import { ExpertListing } from '@/components/expert-listing';
 import { CTASection, PageHero } from '@/components/page-elements';
 import { SiteShell } from '@/components/site-shell';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: 'شبکه متخصصان',
   description: 'ساختار جستجو و ارجاع به متخصص متناسب با موضوع، شهر و نوع خدمت؛ بدون نمایش داده یا صلاحیت تأییدنشده.',
-  alternates: { canonical: '/experts' },
-};
+  path: '/experts',
+  noIndex: true,
+});
 
 export default function ExpertsPage() {
   return (
