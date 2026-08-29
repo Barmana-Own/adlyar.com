@@ -45,21 +45,17 @@ Variationها فقط با `color-mix` و opacity همین رنگ‌ها ساخت
 
 ## Components
 
-- BrandMark
-- SiteHeader، MegaMenu، Search Dialog و Mobile Drawer
-- Button و IconButton variants
-- SectionHeading و SectionKicker
-- Hero workflow visual
-- TrustStrip
-- NeedCard و انتخاب‌گر تعاملی خدمت
-- Quick Inquiry Form و stateهای validation/loading/success/error
-- Legal Service Bento Card
-- Expert Service Editorial Row
-- Scroll Process Step و Sticky Process Visual
-- Benefit Item و Why Adlyar Core
-- Security Feature و Secure Flow visual
+- Layout: `SiteShell`، `SiteHeader`، `SiteFooter`، `BrandMark`، Container و SkipLink.
+- Navigation: MegaMenu، Search Dialog، Mobile Drawer، Breadcrumb و Filter Drawer.
+- Content: `PageHero`، `SectionHeader`، `CTASection`، `ServiceCard`، `ExpertCard`، `ArticleCard`، Tag و Badge.
+- Disclosure: `FAQList` و Accordion مبتنی بر Base UI با پشتیبانی keyboard و `aria-expanded`.
+- Forms: Input، Textarea، Select، Checkbox، Radio، ConsentBox، TimeSlot، Inline Error، Alert و live Output.
+- Conversion: Quick Inquiry، Wizard هفت‌مرحله‌ای، Stepper، FileUpload، Booking Form، Corporate Lead، Contact، Join و Contract Review.
+- Feedback: stateهای default، hover، focus، active، disabled، loading، error و success برای کنترل‌ها و فرم‌ها.
+- Utility: Modal/Dialog، Sheet/Drawer، Toast، Alert، Pagination، Calendar، Progress و Spinner از primitiveهای موجود shadcn/Base UI.
+- Visuals: Hero workflow، Secure Flow، Corporate Desk، Article Visual و Expert Placeholder با CSS/SVG procedural.
 
-کنترل‌های تعاملی modal، drawer، accordion، input، textarea و checkbox بر پایه primitiveهای shadcn/Base UI موجود ساخته شده‌اند.
+کتابخانه جدیدی برای قابلیت‌هایی که در scaffold موجود بود اضافه نشده است. Lucide تنها سیستم آیکون و Base UI/shadcn مبنای کنترل‌های تعاملی باقی مانده‌اند.
 
 ## Motion
 
@@ -74,9 +70,9 @@ Variationها فقط با `color-mix` و opacity همین رنگ‌ها ساخت
 
 ## Responsive
 
-- Desktop: Hero دو ستونه، Bento چهار ستونه، فرایند sticky.
-- Tablet: Gridهای دو ستونه و containerهای محدودشده.
-- Mobile: Hero stacked، selector افقی snap، فرم دو مرحله‌ای، timeline عمودی، CTA ثابت پایین و drawer تمام‌قد.
+- Desktop: Hero دو ستونه، Bento و editorial grid، filter sidebar، detail summary، process sticky و Wizard با help panel.
+- Tablet: Gridهای دو ستونه، toolbarهای فشرده، corporate و knowledge layout شکسته‌شده.
+- Mobile: Hero stacked، Filter Drawer، فرم‌های یک‌ستونه، timeline عمودی، Wizard تمام‌عرض و action bar سازگار با safe area.
 - حداقل عرض پشتیبانی‌شده: ۳۲۰px.
 
 ## Accessibility
@@ -87,3 +83,5 @@ Variationها فقط با `color-mix` و opacity همین رنگ‌ها ساخت
 - Dialog/Drawer/Accordion با primitiveهای keyboard-ready.
 - label، error association، live output و duplicate-submit protection در فرم.
 - Touch targetهای اصلی حداقل ۴۴px.
+- نام فایل، ایمیل، موبایل و شناسه با قواعد bidi و `bdi`/`dir="ltr"` مدیریت می‌شوند.
+- داده متخصص، صلاحیت و اطلاعات تماس تا زمان وجود منبع رسمی با empty state صادقانه جایگزین می‌شوند.

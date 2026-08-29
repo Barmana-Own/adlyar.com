@@ -40,4 +40,38 @@ export async function submitQuickInquiry(
   return response.json() as Promise<{ id?: string; message?: string }>;
 }
 
+export type PublicFormKind =
+  | 'requests'
+  | 'bookings'
+  | 'contacts'
+  | 'corporate-leads'
+  | 'expert-applications'
+  | 'contract-reviews';
+
+export async function submitPublicForm(
+  kind: PublicFormKind,
+  payload: Record<string, unknown>,
+  signal?: AbortSignal,
+) {
+  if (!apiBaseUrl) {
+    throw new ApiUnavailableError();
+  }
+
+  const response = await fetch(`${apiBaseUrl}/api/v1/public/${kind}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': crypto.randomUUID(),
+    },
+    body: JSON.stringify(payload),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('ارسال اطلاعات انجام نشد. لطفاً دوباره تلاش کنید.');
+  }
+
+  return response.json() as Promise<{ id?: string; message?: string }>;
+}
+
 export { ApiUnavailableError };

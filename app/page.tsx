@@ -12,6 +12,14 @@ import {
   WhyAdlyarSection,
 } from '@/components/home/static-sections';
 import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
+import {
+  CorporatePreviewSection,
+  ExpertNetworkSection,
+  HomeFAQSection,
+  HomeFinalCTA,
+  KnowledgePreviewSection,
+} from '@/components/home/continuation-sections';
 
 export default function Home() {
   return (
@@ -29,8 +37,14 @@ export default function Home() {
         <ProcessSection />
         <WhyAdlyarSection />
         <SecuritySection />
+        <ExpertNetworkSection />
+        <CorporatePreviewSection />
+        <KnowledgePreviewSection />
+        <HomeFAQSection />
+        <HomeFinalCTA />
       </main>
-      <a className="mobile-sticky-cta" href="#quick-request">
+      <SiteFooter />
+      <a className="mobile-sticky-cta" href="/request">
         ثبت درخواست
         <ArrowLeft aria-hidden="true" />
       </a>

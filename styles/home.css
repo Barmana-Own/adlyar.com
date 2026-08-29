@@ -81,7 +81,8 @@
 }
 
 .nav-menu:hover .mega-menu,
-.nav-menu:focus-within .mega-menu {
+.nav-menu:focus-within .mega-menu,
+.nav-menu.is-open .mega-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);

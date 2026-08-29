@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description:
     'مسئله حقوقی یا کارشناسی خود را ساختاریافته ثبت کنید تا برای بررسی اولیه و ارجاع به متخصص مرتبط آماده شود.',
   applicationName: 'عدل‌یار',
+  icons: { icon: '/favicon.svg' },
   alternates: {
     canonical: '/',
   },

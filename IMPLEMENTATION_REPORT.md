@@ -27,6 +27,10 @@
 - Scroll-driven process با ۸ مرحله، sticky visual و progress.
 - Why Adlyar با ساختار نامتقارن و ۶ مزیت.
 - Security & Confidentiality با visual جریان کنترل‌شده و ۶ مفهوم.
+- Expert Network با placeholder خنثی و سیاست عدم نمایش داده یا صلاحیت ساختگی.
+- Corporate Services با workflow سازمانی، مدل‌های همکاری و CTA جلسه B2B.
+- Knowledge Center با مقاله شاخص، تازه‌ترین مطالب و دسته‌بندی editorial.
+- FAQ دسترس‌پذیر، Final CTA و Footer کامل.
 - CTA ثابت موبایل.
 - social preview اختصاصی و favicon هماهنگ با برند.
 
@@ -39,12 +43,36 @@
 - `components/home/need-and-inquiry.tsx`
 - `components/home/process-section.tsx`
 - `components/home/static-sections.tsx`
+- `components/home/continuation-sections.tsx`
+- `components/site-shell.tsx`
+- `components/site-footer.tsx`
+- `components/page-elements.tsx`
+- `components/service-listing.tsx`
+- `components/service-detail.tsx`
+- `components/expert-listing.tsx`
+- `components/faq-list.tsx`
+- `components/forms/request-wizard.tsx`
+- `components/forms/file-upload.tsx`
+- `components/forms/lead-form.tsx`
+- `components/forms/contract-review-form.tsx`
 - `lib/home-data.ts`
+- `lib/site-data.ts`
+- `lib/form-utils.ts`
 - `lib/api-client.ts`
 
 ## Pages completed
 
-- Home: کامل برای scope فعلی، از Header تا Security & Confidentiality.
+- `/` — Home کامل از Header تا Footer.
+- `/legal-services` و ۸ detail route.
+- `/expert-services` و ۸ detail route.
+- `/corporate`.
+- `/request` با Wizard هفت‌مرحله‌ای.
+- `/experts` و ساختار detail profile.
+- `/knowledge` و detail article.
+- `/faq`، `/glossary`، `/about`، `/join`، `/contact`، `/book`.
+- `/contract-review`.
+- `/legal`، `/terms`، `/privacy` و `/disclaimer`.
+- 404 اختصاصی، `robots.txt` و `sitemap.xml`.
 
 ## Responsive status
 
@@ -64,15 +92,16 @@
 
 ## API status
 
-- API client مرکزی برای `POST /api/v1/public/quick-inquiries` ایجاد شده است.
+- API client مرکزی برای quick inquiry، request، booking، contact، corporate lead، expert application و contract review ایجاد شده است.
 - URL فقط از `NEXT_PUBLIC_API_BASE_URL` خوانده می‌شود و داخل component hardcode نشده است.
 - تا زمان پیکربندی endpoint واقعی، فرم پیام شفاف «اتصال فعال نیست» نمایش می‌دهد و موفقیت جعلی اعلام نمی‌کند.
-- backend، database، upload و persistence در workspace موجود نیست و خارج از scope فعلی باقی مانده است.
+- backend، database، upload و persistence در workspace موجود نیست؛ UI در نبود اتصال موفقیت یا progress ساختگی نشان نمی‌دهد.
+- FileUpload فایل را محلی اعتبارسنجی می‌کند و هیچ Public URL یا persistence محلی برای PII ایجاد نمی‌کند.
 
 ## Performance
 
 - محتوای Hero و H1 در SSR باقی مانده‌اند.
-- فقط Header، فرم و process controller به Client Component تبدیل شده‌اند.
+- فقط Header، فیلترها، فرم‌ها، Accordion و process controller به Client Component تبدیل شده‌اند.
 - بدون Framer Motion، GSAP یا Three.js؛ motion با CSS و IntersectionObserver پیاده‌سازی شده است.
 - فونت فارسی self-hosted و دارای unicode-range است.
 - social preview خارج از مسیر LCP بارگذاری می‌شود.
@@ -91,6 +120,8 @@
 - title template، description، canonical، Open Graph و X metadata.
 - تصویر `public/og.png` با نسبت ۱۶:۹.
 - favicon اختصاصی.
+- metadata و canonical مستقل برای مسیرهای عمومی و داینامیک.
+- sitemap و robots.
 - یک H1 و heading hierarchy منظم.
 
 ## Security-related changes
@@ -117,12 +148,13 @@
 
 - `NEXT_PUBLIC_API_BASE_URL` هنوز تنظیم نشده است.
 - backend واقعی، rate limiting، server validation، consent persistence و access logging در repository وجود ندارد.
-- اطلاعات تماس و محتوای حقیقی مؤسسه برای routeهای داخلی ارائه نشده است.
+- اطلاعات تماس، داده واقعی متخصصان و صلاحیت‌ها ارائه نشده است؛ به‌جای جعل داده، empty state روشن نمایش داده می‌شود.
+- متن صفحات حقوقی ساختار آماده بازبینی است و پیش از استفاده عملی باید تأیید حقوقی شود.
 - مورد شناخته‌شده‌ای در `npm audit` باقی نمانده است.
 
 ## Recommended next steps
 
 1. اتصال فرم به endpoint واقعی و تست server validation.
-2. تکمیل routeهای داخلی با محتوای تأییدشده مؤسسه.
+2. جایگزینی empty stateهای تماس و متخصصان با داده رسمی و قابل راستی‌آزمایی.
 3. اعتبارسنجی زیرساخت امنیت، کنترل دسترسی و نگهداری مدارک.
 4. تست مرورگر و سنجش Core Web Vitals روی دامنه production.

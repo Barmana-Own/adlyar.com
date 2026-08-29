@@ -1,6 +1,6 @@
 export function BrandMark() {
   return (
-    <a className="brand" href="#top" aria-label="عدل‌یار، صفحه اصلی">
+    <a className="brand" href="/" aria-label="عدل‌یار، صفحه اصلی">
       <span className="brand__mark" aria-hidden="true">
         <span />
         <span />

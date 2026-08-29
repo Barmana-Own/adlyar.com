@@ -28,11 +28,11 @@ export function HeroSection() {
             سازمانی؛ درخواست خود را ثبت کنید تا به متخصص مناسب ارجاع شود.
           </p>
           <div className="hero__actions hero-animate hero-animate--4">
-            <a className="button button--primary button--large" href="#quick-request">
+            <a className="button button--primary button--large" href="/request">
               ثبت درخواست
               <ArrowLeft aria-hidden="true" />
             </a>
-            <a className="button button--outline button--large" href="#quick-request">
+            <a className="button button--outline button--large" href="/book">
               رزرو مشاوره
             </a>
           </div>

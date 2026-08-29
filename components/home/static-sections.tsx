@@ -21,6 +21,17 @@ import {
   trustItems,
 } from '@/lib/home-data';
 
+const expertServiceSlugs = [
+  'property-building',
+  'valuation',
+  'damage',
+  'vehicle',
+  'financial',
+  'technical',
+  'contract-project',
+  'information-technology',
+];
+
 export function TrustStrip() {
   return (
     <section className="trust-strip" aria-label="اصول اعتماد در عدل‌یار">
@@ -82,7 +93,7 @@ export function LegalServicesSection() {
                     <span key={tag}>{tag}</span>
                   ))}
                 </div>
-                <a href="#quick-request" aria-label={'ثبت درخواست برای ' + title}>
+                <a href={`/legal-services/${id}`} aria-label={'مشاهده جزئیات ' + title}>
                   جزئیات و درخواست
                   <ArrowUpLeft aria-hidden="true" />
                 </a>
@@ -108,7 +119,7 @@ export function ExpertServicesSection() {
             برای هر موضوع، ورودی‌ها، روش بررسی و خروجی مورد انتظار پیش از شروع
             مشخص می‌شود.
           </p>
-          <a className="button button--outline" href="#quick-request">
+          <a className="button button--outline" href="/request?type=expert">
             ثبت درخواست کارشناسی
             <ArrowLeft aria-hidden="true" />
           </a>
@@ -130,7 +141,7 @@ export function ExpertServicesSection() {
                 <h3>{title}</h3>
                 <p>{description}</p>
               </div>
-              <a href="#quick-request" aria-label={'درخواست کارشناسی ' + title}>
+              <a href={`/expert-services/${expertServiceSlugs[index]}`} aria-label={'جزئیات کارشناسی ' + title}>
                 <ArrowUpLeft aria-hidden="true" />
               </a>
             </article>
@@ -271,7 +282,7 @@ export function SecuritySection() {
             جزئیات فنی نگهداری، سطح دسترسی و ثبت رویدادها در اتصال نهایی سامانه به
             زیرساخت امن اعتبارسنجی می‌شود.
           </p>
-          <a href="#quick-request">
+          <a href="/privacy">
             پرسش درباره محرمانگی
             <ArrowLeft aria-hidden="true" />
           </a>

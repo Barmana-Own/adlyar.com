@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   ArrowLeft,
   BookOpenText,
@@ -41,21 +42,23 @@ import {
 } from '@/components/ui/sheet';
 
 const legalMenu = [
-  { label: 'مشاوره حقوقی', href: '#legal-services', icon: CircleHelp },
-  { label: 'قراردادها', href: '#legal-services', icon: FileSearch2 },
-  { label: 'امور ملکی', href: '#legal-services', icon: Building2 },
-  { label: 'شرکت‌ها و تجارت', href: '#legal-services', icon: Landmark },
+  { label: 'مشاوره حقوقی', href: '/legal-services/consultation', icon: CircleHelp },
+  { label: 'قراردادها', href: '/legal-services/contracts', icon: FileSearch2 },
+  { label: 'امور ملکی', href: '/legal-services/property', icon: Building2 },
+  { label: 'شرکت‌ها و تجارت', href: '/legal-services/companies', icon: Landmark },
 ];
 
 const expertMenu = [
-  { label: 'ملک و ساختمان', href: '#expert-services', icon: Building2 },
-  { label: 'ارزیابی دارایی', href: '#expert-services', icon: Landmark },
-  { label: 'خسارت و فنی', href: '#expert-services', icon: ShieldCheck },
-  { label: 'فناوری اطلاعات', href: '#expert-services', icon: BookOpenText },
+  { label: 'ملک و ساختمان', href: '/expert-services/property-building', icon: Building2 },
+  { label: 'ارزیابی دارایی', href: '/expert-services/valuation', icon: Landmark },
+  { label: 'خسارت و فنی', href: '/expert-services/damage', icon: ShieldCheck },
+  { label: 'فناوری اطلاعات', href: '/expert-services/information-technology', icon: BookOpenText },
 ];
 
 export function SiteHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 28);
@@ -70,21 +73,31 @@ export function SiteHeader() {
         <BrandMark />
 
         <nav className="desktop-nav" aria-label="ناوبری اصلی">
-          <a className="is-active" href="#top">
+          <a className={pathname === '/' ? 'is-active' : undefined} href="/">
             خانه
           </a>
 
-          <div className="nav-menu">
-            <button className="nav-menu__trigger" type="button" aria-haspopup="true">
+          <div className={'nav-menu' + (servicesOpen ? ' is-open' : '')}>
+            <button
+              className="nav-menu__trigger"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={servicesOpen}
+              aria-controls="services-mega-menu"
+              onClick={() => setServicesOpen((current) => !current)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') setServicesOpen(false);
+              }}
+            >
               خدمات
               <ChevronDown aria-hidden="true" />
             </button>
-            <div className="mega-menu">
+            <div className="mega-menu" id="services-mega-menu">
               <div className="mega-menu__intro">
                 <span className="mega-menu__eyebrow">انتخاب بر اساس مسئله</span>
                 <strong>لازم نیست از ابتدا عنوان دقیق خدمت را بدانید.</strong>
                 <p>موضوع را انتخاب کنید یا مستقیم برای بررسی اولیه توضیح دهید.</p>
-                <a href="#need-selector">
+                <a href="/request">
                   راهنمای انتخاب خدمت
                   <ArrowLeft aria-hidden="true" />
                 </a>
@@ -110,12 +123,12 @@ export function SiteHeader() {
             </div>
           </div>
 
-          <a href="#expert-services">خدمات کارشناسی</a>
-          <a href="#security">خدمات سازمانی</a>
-          <a href="#process">متخصصان</a>
-          <a href="#why-adlyar">مرکز دانش</a>
-          <a href="#why-adlyar">درباره ما</a>
-          <a href="#quick-request">تماس</a>
+          <a className={pathname.startsWith('/expert-services') ? 'is-active' : undefined} href="/expert-services">خدمات کارشناسی</a>
+          <a className={pathname === '/corporate' ? 'is-active' : undefined} href="/corporate">خدمات سازمانی</a>
+          <a className={pathname.startsWith('/experts') ? 'is-active' : undefined} href="/experts">متخصصان</a>
+          <a className={pathname.startsWith('/knowledge') ? 'is-active' : undefined} href="/knowledge">مرکز دانش</a>
+          <a className={pathname === '/about' ? 'is-active' : undefined} href="/about">درباره ما</a>
+          <a className={pathname === '/contact' ? 'is-active' : undefined} href="/contact">تماس</a>
         </nav>
 
         <div className="header__actions">
@@ -145,17 +158,17 @@ export function SiteHeader() {
               </label>
               <div className="search-suggestions">
                 <span>پیشنهادهای سریع</span>
-                <a href="#legal-services">خدمات حقوقی</a>
-                <a href="#expert-services">خدمات کارشناسی</a>
-                <a href="#quick-request">راهنمای انتخاب خدمت</a>
+                <a href="/legal-services">خدمات حقوقی</a>
+                <a href="/expert-services">خدمات کارشناسی</a>
+                <a href="/request">راهنمای انتخاب خدمت</a>
               </div>
             </DialogContent>
           </Dialog>
 
-          <a className="button button--ghost desktop-only" href="#quick-request">
+          <a className="button button--ghost desktop-only" href="/book">
             رزرو مشاوره
           </a>
-          <a className="button button--primary" href="#quick-request">
+          <a className="button button--primary" href="/request">
             ثبت درخواست
           </a>
 
@@ -174,7 +187,7 @@ export function SiteHeader() {
               </SheetHeader>
 
               <nav className="mobile-nav" aria-label="ناوبری موبایل">
-                <SheetClose render={<a href="#top" aria-label="خانه" />}>خانه</SheetClose>
+                <SheetClose render={<a href="/" aria-label="خانه" />}>خانه</SheetClose>
                 <Accordion>
                   <AccordionItem value="services">
                     <AccordionTrigger className="mobile-nav__accordion">خدمات</AccordionTrigger>
@@ -192,12 +205,12 @@ export function SiteHeader() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                <SheetClose render={<a href="#expert-services" aria-label="خدمات کارشناسی" />}>خدمات کارشناسی</SheetClose>
-                <SheetClose render={<a href="#security" aria-label="خدمات سازمانی" />}>خدمات سازمانی</SheetClose>
-                <SheetClose render={<a href="#process" aria-label="متخصصان" />}>متخصصان</SheetClose>
-                <SheetClose render={<a href="#why-adlyar" aria-label="مرکز دانش" />}>مرکز دانش</SheetClose>
-                <SheetClose render={<a href="#why-adlyar" aria-label="درباره ما" />}>درباره ما</SheetClose>
-                <SheetClose render={<a href="#quick-request" aria-label="تماس" />}>تماس</SheetClose>
+                <SheetClose render={<a href="/expert-services" aria-label="خدمات کارشناسی" />}>خدمات کارشناسی</SheetClose>
+                <SheetClose render={<a href="/corporate" aria-label="خدمات سازمانی" />}>خدمات سازمانی</SheetClose>
+                <SheetClose render={<a href="/experts" aria-label="متخصصان" />}>متخصصان</SheetClose>
+                <SheetClose render={<a href="/knowledge" aria-label="مرکز دانش" />}>مرکز دانش</SheetClose>
+                <SheetClose render={<a href="/about" aria-label="درباره ما" />}>درباره ما</SheetClose>
+                <SheetClose render={<a href="/contact" aria-label="تماس" />}>تماس</SheetClose>
               </nav>
 
               <div className="mobile-drawer__support">
@@ -210,14 +223,14 @@ export function SiteHeader() {
               <div className="mobile-drawer__actions">
                 <SheetClose
                   className="button button--primary button--large"
-                  render={<a href="#quick-request" aria-label="ثبت درخواست" />}
+                  render={<a href="/request" aria-label="ثبت درخواست" />}
                 >
                   ثبت درخواست
                   <ArrowLeft aria-hidden="true" />
                 </SheetClose>
                 <SheetClose
                   className="button button--outline button--large"
-                  render={<a href="#quick-request" aria-label="رزرو مشاوره" />}
+                  render={<a href="/book" aria-label="رزرو مشاوره" />}
                 >
                   رزرو مشاوره
                 </SheetClose>

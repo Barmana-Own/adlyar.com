@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
@@ -82,4 +82,81 @@ test('quick inquiry fails transparently when no API base URL is configured', asy
   assert.match(source, /if \(!apiBaseUrl\)/);
   assert.match(source, /ApiUnavailableError/);
   assert.doesNotMatch(source, /localhost|mock|fake/i);
+});
+
+test('all requested public route entrypoints exist', async () => {
+  const routes = [
+    'app/legal-services/page.tsx',
+    'app/legal-services/[slug]/page.tsx',
+    'app/expert-services/page.tsx',
+    'app/expert-services/[slug]/page.tsx',
+    'app/corporate/page.tsx',
+    'app/request/page.tsx',
+    'app/experts/page.tsx',
+    'app/experts/[slug]/page.tsx',
+    'app/knowledge/page.tsx',
+    'app/knowledge/[slug]/page.tsx',
+    'app/faq/page.tsx',
+    'app/glossary/page.tsx',
+    'app/about/page.tsx',
+    'app/join/page.tsx',
+    'app/contact/page.tsx',
+    'app/book/page.tsx',
+    'app/contract-review/page.tsx',
+    'app/legal/page.tsx',
+    'app/terms/page.tsx',
+    'app/privacy/page.tsx',
+    'app/disclaimer/page.tsx',
+    'app/not-found.tsx',
+  ];
+  await Promise.all(routes.map((route) => access(new URL(route, root))));
+});
+
+test('home includes every continuation section and the structured footer', async () => {
+  const page = await read('app/page.tsx');
+  for (const component of [
+    'ExpertNetworkSection',
+    'CorporatePreviewSection',
+    'KnowledgePreviewSection',
+    'HomeFAQSection',
+    'HomeFinalCTA',
+    'SiteFooter',
+  ]) {
+    assert.match(page, new RegExp(`<${component}`));
+  }
+});
+
+test('request wizard has seven durable steps and private local file handling', async () => {
+  const [wizard, upload] = await Promise.all([
+    read('components/forms/request-wizard.tsx'),
+    read('components/forms/file-upload.tsx'),
+  ]);
+  assert.match(wizard, /مرحله \{state\.step\} از ۷/);
+  assert.match(wizard, /useReducer/);
+  assert.doesNotMatch(wizard, /localStorage/);
+  for (const extension of ['.pdf', '.jpg', '.jpeg', '.png', '.docx']) {
+    assert.ok(upload.includes(extension));
+  }
+  assert.match(upload, /Public URL ساخته نمی‌شود/);
+});
+
+test('expert placeholders never manufacture identity or qualifications', async () => {
+  const data = await read('lib/site-data.ts');
+  assert.match(data, /name:\s*null/);
+  assert.match(data, /qualification:\s*null/);
+  assert.match(data, /نام، سابقه، شهر و صلاحیت فقط/);
+});
+
+test('dynamic detail routes reject unknown slugs and expose canonical metadata', async () => {
+  for (const route of [
+    'app/legal-services/[slug]/page.tsx',
+    'app/expert-services/[slug]/page.tsx',
+    'app/experts/[slug]/page.tsx',
+    'app/knowledge/[slug]/page.tsx',
+  ]) {
+    const source = await read(route);
+    assert.match(source, /notFound\(\)/);
+    assert.match(source, /canonical/);
+    assert.match(source, /generateStaticParams/);
+  }
 });
