@@ -12,6 +12,7 @@ import {
   Sparkles,
   UserRoundCheck,
 } from 'lucide-react';
+import { LogoIcon } from '@/components/logo-icon';
 
 import {
   benefits,
@@ -171,8 +172,7 @@ export function WhyAdlyarSection() {
             <div className="why-core__orbit why-core__orbit--two" />
             <div className="why-core__center">
               <span className="brand__mark">
-                <span />
-                <span />
+                <LogoIcon />
               </span>
               <strong>مسئله شما</strong>
               <small>در یک مسیر منسجم</small>

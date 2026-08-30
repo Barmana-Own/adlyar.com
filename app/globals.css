@@ -187,45 +187,10 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 13%, transparent);
 }
 
-.brand__mark::before,
-.brand__mark::after,
-.brand__mark span {
-  content: '';
-  position: absolute;
-  background: #ffffff;
-  border-radius: 999px;
-}
-
-.brand__mark::before {
-  inset-block-start: 1rem;
-  inset-inline-start: 0.76rem;
-  width: 1.15rem;
-  height: 0.12rem;
-  rotate: 38deg;
-}
-
-.brand__mark::after {
-  inset-block-start: 1.63rem;
-  inset-inline-start: 1.63rem;
-  width: 0.92rem;
-  height: 0.12rem;
-  rotate: -34deg;
-}
-
-.brand__mark span:first-child {
-  inset-block-start: 0.62rem;
-  inset-inline-start: 0.58rem;
-  width: 0.38rem;
-  height: 0.38rem;
-  box-shadow: 0.77rem 0.74rem 0 -0.02rem var(--color-accent);
-}
-
-.brand__mark span:last-child {
-  inset-block-end: 0.58rem;
-  inset-inline-end: 0.55rem;
-  width: 0.42rem;
-  height: 0.42rem;
-  background: var(--color-secondary);
+.brand__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .brand__text {

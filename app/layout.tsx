@@ -60,7 +60,7 @@ export default function RootLayout({
             '@id': `${SITE_URL}/#organization`,
             name: SITE_NAME,
             url: SITE_URL,
-            logo: absoluteUrl('/favicon.svg'),
+            logo: absoluteUrl('/logo.svg'),
           },
           {
             '@context': 'https://schema.org',

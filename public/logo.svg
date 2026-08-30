@@ -1,4 +1,5 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="96" height="96" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>نشان عدل‌یار</title>
   <rect width="64" height="64" rx="18" fill="#142B4A"/>
   <path d="M20 14h17.5L46 22.5V50H20V14Z" stroke="#F7F8FA" stroke-width="2.8" stroke-linejoin="round"/>
   <path d="M37.5 14v9H46" stroke="#F7F8FA" stroke-width="2.8" stroke-linejoin="round"/>
